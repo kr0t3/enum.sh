@@ -6,6 +6,10 @@ echo "[g] Github => https://github.com/cihanmehmet"
 echo "[#] curl -sL https://raw.githubusercontent.com/cihanmehmet/sub.sh/master/sub.sh | bash -s bing.com"
 echo "[#] curl -sL https://git.io/JesKK | bash -s tesla.com"
 echo "███████████████████████████████████████████████████████████████████████████████████████████████"
+
+#timestamp
+fecha=$(date "+%d%m%Y")
+
 if [[ $# -eq 0 ]] ;
 then
 	echo "Usage: bash sub.sh bing.com"
@@ -56,16 +60,16 @@ else
 
 
         echo "——————————————————————————————————$1 SUBDOMAIN————————————————————————————————————————————"
-        cat $1.txt|sort -u|tee -a $1.txt
+        cat $1.txt|sort -u|tee -a $1-$fecha.txt
         echo "- - - - - - - - - - - - - - - - - $1 ALIVE SUBDOMAIN - - - - - - - - - - - - - - - - - - -"
-        cat $1.txt|httprobe -t 15000 -c 50|cut -d "/" -f3|sort -u |tee alive_$1.txt
+        cat $1.txt|httprobe -t 15000 -c 50|cut -d "/" -f3|sort -u |tee alive_$1-$fecha.txt
         echo ""
         echo "███████████████████████████████████████████████████████████████████████████████████████████"
-        echo "Detect Subdomain $(wc -l $1.txt|awk '{ print $1 }' )" "=> ${1}"
-        echo "File Location : "$(pwd)/"$1.txt"
+        echo "Detect Subdomain $(wc -l $1-$fecha.txt|awk '{ print $1 }' )" "=> ${1}"
+        echo "File Location : "$(pwd)/"$1-$fecha.txt"
         echo ""
         echo "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓"
-        echo "Detect Alive Subdomain $(wc -l alive_$1.txt|awk '{ print $1 }' )" "=> ${1}"
-        echo "File Location : "$(pwd)/"alive_$1.txt"
+        echo "Detect Alive Subdomain $(wc -l alive_$1-$fecha.txt|awk '{ print $1 }' )" "=> ${1}"
+        echo "File Location : "$(pwd)/"alive_$1-$fecha.txt"
 
 fi
