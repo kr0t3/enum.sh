@@ -10,9 +10,8 @@ fecha=$(date "+%d%m%Y")
 
 if [[ $# -eq 0 ]] ;
 then
-echo " __        __    __       "
-echo "/__` |  | |__)  /__` |__| "
-echo ".__/ \__/ |__) ..__/ |  | "
+echo "Easy recon for bugbounty hunters."
+echo "Usage :  ./sub.sh test.com"
 echo ""
         exit 1
 else
