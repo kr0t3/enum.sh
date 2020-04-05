@@ -5,7 +5,8 @@
 
 ```bash
 
-./sub.sh webscantest.com
+./enum.sh webscantest.com
 ```
 
 
+Tools needed: 
