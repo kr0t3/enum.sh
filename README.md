@@ -9,7 +9,7 @@
 ```
 
 
-req: 
+req:
 ```bash
 jq
 uniq
@@ -18,9 +18,14 @@ subfinder
 amass
 nmap
 masscan
-httprobe
+fprobe
 gau
 concurl
 pup
+CeWL
+ohmybackup
+.
+.
+.
 and more tba.
 ```
