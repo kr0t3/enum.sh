@@ -9,13 +9,9 @@
 #
 # Next update: parameters.. ./tool -u example.com | ./tool -m (for menu)
 
-
-
-
-#timestamp
 fecha=$(date "+%d%m%Y")
-#colour
 lightyellow=`echo -en "\e[93m"`;red=`echo -en "\e[31m"`;green=`echo -en "\e[32m"`;normal=`echo -en "\e[0m"`;WHITE=`echo -en "\e[107m"`;
+
 #install req tools / addons before use. See  readme.md for more information.
 
 dominio=$1
@@ -62,26 +58,21 @@ proceso(){
 				} &> /dev/null
 
 				echo -ne '['$green'#######################'$normal'](100%) DONE\r'
-				sleep 1
-				cat $dominio.txt | wc -l >> numero.txt
-				echo "We found ""domains. please wait. (The more domains, the more u need to wait.)"
-				rm numero.txt
 				cat $dominio.txt|sort -u >> $dominio-$fecha.txt
-				cat $dominio.txt|fprobe|cut -d "/" -f3|sort -u | tee alive_$dominio-$fecha.txt
+				#cat $dominio.txt|fprobe|cut -d "/" -f3|sort -u | tee alive_$dominio-$fecha.txt
+				cat $dominio.txt|httprobe -t 15000 -c 50|cut -d "/" -f3|sort -u |tee alive_$dominio-$fecha.txt
 				echo ""
 				menu
 }
 
 
-
-
 menu(){
-	echo "[0] Volver a escanear (puede encontrar mas dominios)"
+	echo "[0] Scan again."
 	echo "[1] Nmap top 500 to alive_"$dominio"-"$fecha".txt"
 	echo "[2] History of site dns"
 	echo "[3] Deadpage (if error json = 404)"
 	echo "[4] CeWL (Generate wordlist from root domain/subdomain)"
-	echo "[5] Scan for backups"
+	echo "[5] dirsearch all subdomains, default wordlist (6.3k) (may it take long.)Please try the generated one from step 4 too."
 	echo "[enter] Exit"
 	read -p "Pick an option: " -n 0 -r
 								if [[ $REPLY =~ ^[0]$ ]]
@@ -91,45 +82,50 @@ menu(){
 								if [[ $REPLY =~ ^[1]$ ]]
 								then
 												#Nmap top 500
-												for i in $(cat alive_$dominio-$fecha.txt); do nmap $dominio --top-ports 500 --min-rate 10 ; done
+												for i in $(cat alive_$dominio-$fecha.txt); do nmap $i --top-ports 500 --min-rate 10 -Pn; done
 												menu
 								fi
 								if [[ $REPLY =~ ^[2]$ ]]
 								then
 												#History of Site
-												for i in $(cat alive_$dominio-$fecha.txt); do curl --silent https://securitytrails.com/domain/$dominio/history/a |  pup -i 4 'tr[class=data-row] div text{}' | grep '\S'; done
+												for i in $(cat alive_$dominio-$fecha.txt); do curl --silent https://securitytrails.com/domain/$i/history/a |  pup -i 4 'tr[class=data-row] div text{}' | grep '\S'; done
 												menu
 								fi
 								if [[ $REPLY =~ ^[3]$ ]]
 								then
-												#Deadpage
-												for i in $(cat alive_$dominio-$fecha.txt); do  echo $dominio | gau -subs | concurl -c 20 -- -s -L -o /dev/null -k -w '%{http_code},%{size_download}'; done
+												#Deadpage (all good until here)
+												for i in $(cat alive_$dominio-$fecha.txt); do  echo $i | gau -subs | concurl -c 20 -- -s -L -o /dev/null -k -w '%{http_code},%{size_download}' >> deagpage-$dominio-$fecha.txt; done
 												menu
 								fi
 								if [[ $REPLY =~ ^[4]$ ]]
 								then
 									#generate an dicctionary
-												for i in $(cat alive_$dominio-$fecha.txt); do 	~/tools/CeWL/cewl.rb $dominio >> $dominio-wordlist.txt; done
+												for i in $(cat alive_$dominio-$fecha.txt); do 	~/tools/CeWL/cewl.rb $i >> $dominio-wordlist.txt; done
 												menu
 								fi
 								if [[ $REPLY =~ ^[5]$ ]]
 								then
-									#search for backups
-									for i in $(cat alive_$dominio-$fecha.txt); do ~/tools/ohmybackup/ohmybackup $dominio; done
+									#Dirsearch every subdomain , default wordlist (it takes long)
+									echo "running dirsearch, please wait.."
+									touch dirsearch-$domain.txt
+									tail -f dirsearch-$domain.txt
+									{
+												for i in $(cat alive_$dominio-$fecha.txt); do python3 ~/tools/dirsearch/dirsearch.py -u $i -e html,php,js >> dirsearch-$i.txt; done
+									} &> /dev/null
+									echo "Done."
 									menu
 								fi
 }
 
-
-
-{
-	if [ ! -f ~/github/enum.sh/$1.txt ]; then
+if [[ $# -eq 0 ]]; then
+	exit 0
+	elif [ ! -f ~/github/enum.sh/$1.txt ]; then
 		echo "[+] Script running, please wait."
 		proceso
-	elif [[ $# -eq 0 ]]; then
-		exit 0
 	else
-		echo "este dominio ya existe, continuando con el script"
+		echo "Domain already scanned, skipping to menu"
+		echo "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+		echo ""
 		menu
 	fi
 }

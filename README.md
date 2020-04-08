@@ -23,9 +23,12 @@ gau
 concurl
 pup
 CeWL
-ohmybackup
+Dirsearch
+
 .
 .
 .
 and more tba.
 ```
+
+next tool: bigscope.sh
