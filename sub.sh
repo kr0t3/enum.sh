@@ -88,7 +88,7 @@ menu(){
 								if [[ $REPLY =~ ^[2]$ ]]
 								then
 												#History of Site
-												for i in $(cat alive_$dominio-$fecha.txt); do curl --silent https://securitytrails.com/domain/$i/history/a |  pup -i 4 'tr[class=data-row] div text{}' | grep '\S'; done
+												for i in $(cat alive_$dominio-$fecha.txt); do echo "Target: "$i && curl --silent https://securitytrails.com/domain/$i/history/a |  pup -i 4 'tr[class=data-row] div text{}' | grep '\S'; done
 												menu
 								fi
 								if [[ $REPLY =~ ^[3]$ ]]
@@ -107,11 +107,11 @@ menu(){
 								then
 									#Dirsearch every subdomain , default wordlist (it takes long)
 									echo "running dirsearch, please wait.."
-									touch dirsearch-$domain.txt
-									tail -f dirsearch-$domain.txt
-									{
-												for i in $(cat alive_$dominio-$fecha.txt); do python3 ~/tools/dirsearch/dirsearch.py -u $i -e html,php,js >> dirsearch-$i.txt; done
-									} &> /dev/null
+									touch dirsearch-$dominio.txt
+									tail -f dirsearch-$dominio.txt
+									#{
+												for i in $(cat alive_$dominio-$fecha.txt); do python3 ~/tools/dirsearch/dirsearch.py -e html -u ${i} >> dirsearch-${i}.txt; done
+									#} &> /dev/null
 									echo "Done."
 									menu
 								fi
@@ -129,3 +129,9 @@ if [[ $# -eq 0 ]]; then
 		menu
 	fi
 }
+
+
+
+
+
+#es mejor usar FFUF.
